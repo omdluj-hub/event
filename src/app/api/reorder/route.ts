@@ -1,33 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { supabase } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
-    const { sortedNames } = await req.json(); // ['image1.jpg', 'image2.jpg', ...]
+    const { sortedNames } = await req.json(); // Full public URLs or names
     if (!sortedNames || !Array.isArray(sortedNames)) {
       return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
     }
 
-    const cardnewsDir = path.join(process.cwd(), 'public/images/cardnews');
+    // Since we can't easily "rename" in Supabase Storage API without copy+delete,
+    // and filenames are our only sort key in the simple GET list,
+    // we will prefix them with numbers.
     
-    // 파일 이름 앞에 순서를 나타내는 접두사를 붙여 파일명을 변경합니다.
-    // 예: 01_original.jpg, 02_next.jpg
-    sortedNames.forEach((name, index) => {
-      const oldPath = path.join(cardnewsDir, name);
-      // 기존에 숫자가 붙어있을 수 있으므로 순수 파일명 추출
-      const pureName = name.replace(/^\d+_/, '');
-      const newName = `${String(index + 1).padStart(3, '0')}_${pureName}`;
-      const newPath = path.join(cardnewsDir, newName);
+    for (let i = 0; i < sortedNames.length; i++) {
+      const url = sortedNames[i];
+      // Extract filename from URL (Supabase public URL format)
+      const fileNameWithParams = url.split('/').pop() || '';
+      const oldFileName = fileNameWithParams.split('?')[0]; // remove query params if any
       
-      if (fs.existsSync(oldPath)) {
-        fs.renameSync(oldPath, newPath);
+      const pureName = oldFileName.replace(/^\d+_/, '');
+      const newFileName = `${String(i + 1).padStart(3, '0')}_${pureName}`;
+      
+      if (oldFileName !== newFileName) {
+        // Copy to new name
+        const { error: copyError } = await supabase.storage
+          .from('event-images')
+          .copy(`cardnews/${oldFileName}`, `cardnews/${newFileName}`);
+        
+        if (!copyError) {
+          // Delete old
+          await supabase.storage.from('event-images').remove([`cardnews/${oldFileName}`]);
+        }
       }
-    });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Reorder error:', error);
+    console.error('Supabase reorder error:', error);
     return NextResponse.json({ error: 'Reorder failed' }, { status: 500 });
   }
 }
