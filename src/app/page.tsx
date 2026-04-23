@@ -14,6 +14,8 @@ interface ImageResponse {
   cardnewsImages: string[];
 }
 
+import ReservationForm from '@/components/ReservationForm';
+
 export default function Home() {
   const [images, setImages] = useState<ImageResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -109,6 +111,11 @@ export default function Home() {
               <div className="text-center py-12 text-gray-400">등록된 카드뉴스가 없습니다.</div>
             )}
           </div>
+        </section>
+
+        {/* Reservation Form Section */}
+        <section className="animate-fade-in-up">
+          <ReservationForm />
         </section>
 
         {/* Map & Quick Contact Section */}
