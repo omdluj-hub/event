@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 
 interface Reservation {
@@ -19,11 +19,7 @@ export default function AdminReservationList() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReservations();
-  }, []);
-
-  const fetchReservations = async () => {
+  const fetchReservations = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('reservations')
@@ -34,7 +30,14 @@ export default function AdminReservationList() {
       setReservations(data);
     }
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void fetchReservations();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchReservations]);
 
   const updateStatus = async (id: string, newStatus: string) => {
     const { error } = await supabase

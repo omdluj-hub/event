@@ -3,18 +3,13 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    const { data: files, error } = await supabase.storage.from('event-images').list('', {
+    const { error } = await supabase.storage.from('event-images').list('', {
       limit: 100,
       offset: 0,
       sortBy: { column: 'name', order: 'asc' },
     });
 
     if (error) throw error;
-
-    const eventFile = files.find(f => f.name.startsWith('event'));
-    const cardnewsFiles = files
-      .filter(f => f.name.startsWith('cardnews/') || (f.name.match(/^\d+_/))) // Handling both old and reordered patterns
-      .sort((a, b) => a.name.localeCompare(b.name));
 
     // Actually, let's keep it simple: event at root, cardnews in a folder
     // But list() doesn't recurse by default. Let's list the root and the cardnews folder.
