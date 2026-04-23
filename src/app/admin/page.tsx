@@ -1,11 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ImageManager from '@/components/ImageManager';
 import AdminReservationList from '@/components/AdminReservationList';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'images' | 'reservations'>('images');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const password = prompt('관리자 비밀번호를 입력하세요.');        
+    if (password === 'gnrnal1075') {
+      setIsAuthenticated(true);
+    } else {
+      alert('비밀번호가 틀렸습니다.');
+      window.location.href = '/';
+    }
+    setLoading(false);
+  }, []);
+
+  if (loading) return <div className="p-10 text-center">불러오는 중...</div>;
+  if (!isAuthenticated) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
