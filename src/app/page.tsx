@@ -8,16 +8,17 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+import ReservationModal from '@/components/ReservationModal';
+
 interface ImageResponse {
   eventImage: string | null;
   cardnewsImages: string[];
 }
 
-import ReservationForm from '@/components/ReservationForm';
-
 export default function Home() {
   const [images, setImages] = useState<ImageResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetch('/api/images')
@@ -63,7 +64,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto py-8 px-4 md:py-12 space-y-16">
+      <main className="max-w-5xl mx-auto py-8 px-4 md:py-12 space-y-12">
         {/* Main Event Image */}
         <section className="animate-fade-in">
           {images?.eventImage ? (
@@ -79,6 +80,16 @@ export default function Home() {
               진행중인 이벤트가 없습니다.
             </div>
           )}
+        </section>
+
+        {/* Action Button Section */}
+        <section className="flex justify-center animate-bounce-subtle">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="group relative inline-flex items-center justify-center px-10 py-5 font-bold text-white transition-all duration-200 bg-green-600 font-pj rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 shadow-xl hover:bg-green-700 active:scale-95"
+          >
+            <span className="text-xl">✨ 4월 이벤트 간편 예약하기</span>
+          </button>
         </section>
 
         {/* Cardnews Slider */}
@@ -110,11 +121,6 @@ export default function Home() {
               <div className="text-center py-12 text-gray-400">등록된 카드뉴스가 없습니다.</div>
             )}
           </div>
-        </section>
-
-        {/* Reservation Form Section */}
-        <section className="animate-fade-in-up">
-          <ReservationForm />
         </section>
 
         {/* Map & Quick Contact Section */}
@@ -201,6 +207,20 @@ export default function Home() {
 
       {/* Floating Buttons */}
       <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-[100]">
+        {/* Floating Reservation Banner */}
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="w-16 h-16 bg-green-600 rounded-full shadow-2xl flex flex-col items-center justify-center text-white hover:scale-110 transition-transform hover:bg-green-500 group relative"
+          title="이벤트 예약"
+        >
+          <span className="text-2xl mb-[-4px]">📅</span>
+          <span className="text-[10px] font-bold">예약</span>
+          {/* Tooltip-like badge */}
+          <span className="absolute right-full mr-3 bg-white text-green-600 px-3 py-1.5 rounded-lg text-xs font-bold shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-green-100">
+            실시간 이벤트 예약하기
+          </span>
+        </button>
+
         <a 
           href="https://pf.kakao.com/_JEGuu" 
           target="_blank"
@@ -220,6 +240,12 @@ export default function Home() {
           N
         </a>
       </div>
+
+      {/* Reservation Modal */}
+      <ReservationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
 
       {/* Footer */}
       <footer className="bg-gray-800 text-gray-300 py-12">
