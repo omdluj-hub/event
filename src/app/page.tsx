@@ -82,13 +82,13 @@ export default function Home() {
           )}
         </section>
 
-        {/* Action Button Section - Enlarged */}
+        {/* Action Button Section - Super Enlarged */}
         <section className="flex justify-center animate-bounce-subtle">
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="group relative inline-flex items-center justify-center px-12 py-7 font-bold text-white transition-all duration-200 bg-green-600 rounded-3xl shadow-2xl hover:bg-green-700 active:scale-95 border-b-4 border-green-800"
+            className="group relative inline-flex items-center justify-center px-16 py-10 font-black text-white transition-all duration-200 bg-green-600 rounded-[2.5rem] shadow-[0_20px_50px_rgba(22,163,74,0.4)] hover:bg-green-700 active:scale-95 border-b-[6px] border-green-800"
           >
-            <span className="text-2xl md:text-3xl">✨ 4월 이벤트 실시간 예약하기</span>
+            <span className="text-3xl md:text-5xl tracking-tighter">✨ 4월 이벤트 실시간 예약</span>
           </button>
         </section>
 
@@ -205,19 +205,19 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Floating Buttons - Enlarged */}
-      <div className="fixed bottom-10 right-10 flex flex-col gap-6 z-[100]">
-        {/* Floating Reservation Banner */}
+      {/* Floating Buttons */}
+      <div className="fixed bottom-10 right-10 flex flex-col gap-6 z-[100] items-end">
+        {/* Floating Reservation Banner - EXTRA LARGE */}
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="w-20 h-20 bg-green-600 rounded-full shadow-2xl flex flex-col items-center justify-center text-white hover:scale-110 transition-transform hover:bg-green-500 group relative border-4 border-white"
+          className="w-28 h-28 bg-green-600 rounded-full shadow-[0_15px_40px_rgba(22,163,74,0.5)] flex flex-col items-center justify-center text-white hover:scale-110 transition-transform hover:bg-green-500 group relative border-[6px] border-white"
           title="이벤트 예약"
         >
-          <span className="text-3xl mb-[-4px]">📅</span>
-          <span className="text-xs font-black">예약</span>
+          <span className="text-4xl mb-[-4px]">📅</span>
+          <span className="text-sm font-black tracking-tighter">실시간예약</span>
           {/* Tooltip-like badge */}
-          <span className="absolute right-full mr-4 bg-white text-green-600 px-4 py-2 rounded-xl text-sm font-bold shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border-2 border-green-100">
-            실시간 이벤트 예약하기
+          <span className="absolute right-full mr-5 bg-white text-green-600 px-5 py-3 rounded-2xl text-base font-black shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border-2 border-green-100">
+            지금 바로 신청하세요! 👆
           </span>
         </button>
 
@@ -225,7 +225,7 @@ export default function Home() {
           href="https://pf.kakao.com/_JEGuu" 
           target="_blank"
           rel="noopener noreferrer"
-          className="w-20 h-20 bg-yellow-400 rounded-full shadow-2xl flex items-center justify-center text-4xl hover:scale-110 transition-transform hover:bg-yellow-300 border-4 border-white"
+          className="w-16 h-16 bg-yellow-400 rounded-full shadow-xl flex items-center justify-center text-3xl hover:scale-110 transition-transform hover:bg-yellow-300 border-4 border-white"
           title="카카오톡 상담"
         >
           💬
@@ -234,7 +234,7 @@ export default function Home() {
           href="https://naver.me/5N15Owng" 
           target="_blank"
           rel="noopener noreferrer"
-          className="w-20 h-20 bg-green-500 rounded-full shadow-2xl flex items-center justify-center text-white text-3xl font-black hover:scale-110 transition-transform hover:bg-green-400 border-4 border-white"
+          className="w-16 h-16 bg-green-500 rounded-full shadow-xl flex items-center justify-center text-white text-2xl font-black hover:scale-110 transition-transform hover:bg-green-400 border-4 border-white"
           title="네이버 예약"
         >
           N

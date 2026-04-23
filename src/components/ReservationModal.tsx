@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const EVENT_DATA = {
   '피부 이벤트': [
@@ -34,19 +34,53 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
   const [step, setStep] = useState(1);
   const [mainCategory, setMainCategory] = useState<MainCategory | ''>('');
   const [subCategory, setSubCategory] = useState('');
-  const [date, setDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [time, setTime] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // 모달이 열릴 때 오늘 날짜로 초기화
-  useEffect(() => {
-    if (isOpen && !date) {
-      setDate(new Date().toISOString().split('T')[0]);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // 달력 생성을 위한 함수
+  const renderCalendar = useCallback(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const days = [];
+    // 빈 칸 (이전 달 날짜)
+    for (let i = 0; i < firstDay; i++) {
+      days.push(<div key={`empty-${i}`} className="h-10"></div>);
     }
-  }, [isOpen, date]);
+    // 실제 날짜
+    for (let d = 1; d <= lastDate; d++) {
+      const dateObj = new Date(year, month, d);
+      const isPast = dateObj < today;
+      const isSelected = selectedDate?.toDateString() === dateObj.toDateString();
+      const isToday = today.toDateString() === dateObj.toDateString();
+
+      days.push(
+        <button
+          key={d}
+          disabled={isPast}
+          onClick={() => setSelectedDate(dateObj)}
+          className={`h-10 w-full rounded-full text-sm font-bold transition-all flex items-center justify-center
+            ${isPast ? 'text-gray-200 cursor-not-allowed' : 
+              isSelected ? 'bg-green-600 text-white shadow-lg scale-110' : 
+              isToday ? 'text-green-600 border border-green-200' : 'text-gray-700 hover:bg-green-50'}`}
+        >
+          {d}
+        </button>
+      );
+    }
+    return days;
+  }, [currentMonth, selectedDate]);
 
   // 모달이 닫힐 때 상태 초기화
   useEffect(() => {
@@ -55,7 +89,7 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
         setStep(1);
         setMainCategory('');
         setSubCategory('');
-        setDate('');
+        setSelectedDate(null);
         setTime('');
         setName('');
         setPhone('');
@@ -68,10 +102,11 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      const formattedDate = selectedDate?.toISOString().split('T')[0];
       const response = await fetch('/api/reservations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mainCategory, subCategory, date, time, name, phone }),
+        body: JSON.stringify({ mainCategory, subCategory, date: formattedDate, time, name, phone }),
       });
       if (response.ok) setSuccess(true);
       else alert('예약 신청에 실패했습니다.');
@@ -88,11 +123,7 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden relative animate-scale-in">
-        {/* Close Button */}
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
-        >
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -104,17 +135,12 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
               <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✓</div>
               <h3 className="text-2xl font-bold text-gray-800 mb-2">예약 신청 완료!</h3>
               <p className="text-gray-500 mb-8">내용 확인 후 곧 연락드리겠습니다.</p>
-              <button 
-                onClick={onClose}
-                className="w-full bg-green-600 text-white font-bold py-4 rounded-2xl hover:bg-green-700 transition-colors"
-              >
-                닫기
-              </button>
+              <button onClick={onClose} className="w-full bg-green-600 text-white font-bold py-4 rounded-2xl hover:bg-green-700 transition-colors">닫기</button>
             </div>
           ) : (
             <div className="space-y-6">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded-md uppercase tracking-wider">Step {step} / 4</span>
+                <span className="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded-md">Step {step} / 4</span>
                 <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                   <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${(step / 4) * 100}%` }}></div>
                 </div>
@@ -122,14 +148,10 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
 
               {step === 1 && (
                 <div className="animate-slide-in">
-                  <h3 className="text-xl font-bold text-gray-800 mb-6">관심 있는 이벤트 분야를 선택해주세요.</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">이벤트 분야를 선택해주세요.</h3>
                   <div className="grid grid-cols-1 gap-4">
                     {(Object.keys(EVENT_DATA) as MainCategory[]).map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => { setMainCategory(cat); setStep(2); }}
-                        className={`p-6 rounded-2xl border-2 text-left transition-all ${mainCategory === cat ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200 hover:bg-gray-50'}`}
-                      >
+                      <button key={cat} onClick={() => { setMainCategory(cat); setStep(2); }} className={`p-6 rounded-2xl border-2 text-left transition-all ${mainCategory === cat ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200'}`}>
                         <span className="text-lg font-bold text-gray-800">{cat}</span>
                       </button>
                     ))}
@@ -142,93 +164,59 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
                   <h3 className="text-xl font-bold text-gray-800 mb-6">상세 항목을 선택해주세요.</h3>
                   <div className="grid grid-cols-1 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                     {mainCategory && EVENT_DATA[mainCategory].map((item) => (
-                      <button
-                        key={item}
-                        onClick={() => { setSubCategory(item); setStep(3); }}
-                        className={`p-4 rounded-xl border-2 text-left text-sm transition-all ${subCategory === item ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200 hover:bg-gray-50'}`}
-                      >
+                      <button key={item} onClick={() => { setSubCategory(item); setStep(3); }} className={`p-4 rounded-xl border-2 text-left text-sm transition-all ${subCategory === item ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200'}`}>
                         {item}
                       </button>
                     ))}
                   </div>
-                  <button onClick={() => setStep(1)} className="mt-6 text-gray-400 text-sm font-medium hover:text-gray-600">← 뒤로가기</button>
+                  <button onClick={() => setStep(1)} className="mt-6 text-gray-400 text-sm font-medium">← 뒤로가기</button>
                 </div>
               )}
 
               {step === 3 && (
                 <div className="animate-slide-in">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">방문 희망 날짜와 시간을 알려주세요.</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">예약 날짜와 시간을 클릭하세요.</h3>
                   <div className="space-y-6">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-400 mb-2 uppercase">날짜 선택</label>
-                      <input 
-                        type="date" 
-                        min={new Date().toISOString().split('T')[0]}
-                        className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none block appearance-none"
-                        style={{ colorScheme: 'light' }}
-                        value={date}
-                        onFocus={(e) => e.target.showPicker && e.target.showPicker()}
-                        onClick={(e) => (e.target as any).showPicker && (e.target as any).showPicker()}
-                        onChange={(e) => setDate(e.target.value)}
-                      />
-                      <p className="text-[10px] text-gray-400 mt-1 italic">* 날짜 입력 칸을 클릭하면 달력이 나타납니다.</p>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-400 mb-2 uppercase">시간 선택</label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {['10:30', '11:00', '11:30', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(t => (
-                          <button
-                            key={t}
-                            onClick={() => setTime(t)}
-                            className={`py-3 rounded-xl text-sm font-bold transition-all ${time === t ? 'bg-green-600 text-white shadow-md' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-                          >
-                            {t}
-                          </button>
-                        ))}
+                    {/* 커스텀 달력 UI */}
+                    <div className="bg-gray-50 p-4 rounded-2xl">
+                      <div className="flex justify-between items-center mb-4 px-2">
+                        <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-1 hover:bg-gray-200 rounded-full">◀</button>
+                        <span className="font-bold text-gray-700">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span>
+                        <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-1 hover:bg-gray-200 rounded-full">▶</button>
+                      </div>
+                      <div className="grid grid-cols-7 text-center text-[10px] font-bold text-gray-400 mb-2">
+                        {['일','월','화','수','목','금','토'].map(d => <div key={d}>{d}</div>)}
+                      </div>
+                      <div className="grid grid-cols-7 gap-1">
+                        {renderCalendar()}
                       </div>
                     </div>
+
+                    <div className="grid grid-cols-4 gap-2">
+                      {['10:30', '11:00', '11:30', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(t => (
+                        <button key={t} onClick={() => setTime(t)} className={`py-2 rounded-lg text-xs font-bold transition-all ${time === t ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                          {t}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center mt-8">
-                    <button onClick={() => setStep(2)} className="text-gray-400 text-sm font-medium hover:text-gray-600">← 뒤로가기</button>
-                    <button 
-                      disabled={!date || !time}
-                      onClick={() => setStep(4)}
-                      className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold disabled:bg-gray-200"
-                    >
-                      다음으로
-                    </button>
+                  <div className="flex justify-between items-center mt-6">
+                    <button onClick={() => setStep(2)} className="text-gray-400 text-sm font-medium">← 뒤로가기</button>
+                    <button disabled={!selectedDate || !time} onClick={() => setStep(4)} className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold disabled:bg-gray-200">다음으로</button>
                   </div>
                 </div>
               )}
 
               {step === 4 && (
                 <div className="animate-slide-in">
-                  <h3 className="text-xl font-bold text-gray-800 mb-6">마지막으로 성함과 연락처를 입력해주세요.</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">성함과 연락처를 입력해주세요.</h3>
                   <div className="space-y-4">
-                    <input 
-                      type="text" 
-                      placeholder="성함"
-                      className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                    />
-                    <input 
-                      type="tel" 
-                      placeholder="연락처 (예: 010-0000-0000)"
-                      className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                    />
+                    <input type="text" placeholder="성함" className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none" value={name} onChange={(e) => setName(e.target.value)} />
+                    <input type="tel" placeholder="연락처" className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none" value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
                   <div className="flex justify-between items-center mt-8">
-                    <button onClick={() => setStep(3)} className="text-gray-400 text-sm font-medium hover:text-gray-600">← 뒤로가기</button>
-                    <button 
-                      disabled={!name || !phone || loading}
-                      onClick={handleSubmit}
-                      className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold disabled:bg-gray-200 flex items-center gap-2"
-                    >
-                      {loading ? '신청 중...' : '예약 신청하기'}
-                    </button>
+                    <button onClick={() => setStep(3)} className="text-gray-400 text-sm font-medium">← 뒤로가기</button>
+                    <button disabled={!name || !phone || loading} onClick={handleSubmit} className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold disabled:bg-gray-200">{loading ? '신청 중...' : '예약 신청하기'}</button>
                   </div>
                 </div>
               )}
