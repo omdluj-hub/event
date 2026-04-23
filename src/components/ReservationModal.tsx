@@ -53,6 +53,15 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
     const today = new Date();
     today.setHours(0,0,0,0);
 
+    // 2026년 주요 공휴일 리스트 (대체공휴일 포함)
+    const holidays = [
+      '2026-01-01', '2026-02-16', '2026-02-17', '2026-02-18', '2026-02-19',
+      '2026-03-01', '2026-03-02', '2026-05-05', '2026-05-24', '2026-05-25',
+      '2026-06-06', '2026-08-15', '2026-08-17', '2026-09-24', '2026-09-25',
+      '2026-09-26', '2026-09-28', '2026-10-03', '2026-10-05', '2026-10-09',
+      '2026-12-25'
+    ];
+
     const days = [];
     // 빈 칸 (이전 달 날짜)
     for (let i = 0; i < firstDay; i++) {
@@ -61,19 +70,24 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
     // 실제 날짜
     for (let d = 1; d <= lastDate; d++) {
       const dateObj = new Date(year, month, d);
+      const dayOfWeek = dateObj.getDay(); // 0:일, 4:목
+      const dateStr = dateObj.toLocaleDateString('en-CA'); // YYYY-MM-DD 형식
+      
       const isPast = dateObj < today;
+      const isClosed = dayOfWeek === 0 || dayOfWeek === 4 || holidays.includes(dateStr);
       const isSelected = selectedDate?.toDateString() === dateObj.toDateString();
       const isToday = today.toDateString() === dateObj.toDateString();
 
       days.push(
         <button
           key={d}
-          disabled={isPast}
+          disabled={isPast || isClosed}
           onClick={() => setSelectedDate(dateObj)}
-          className={`h-10 w-full rounded-full text-sm font-bold transition-all flex items-center justify-center
-            ${isPast ? 'text-gray-200 cursor-not-allowed' : 
+          className={`h-10 w-full rounded-full text-sm font-bold transition-all flex items-center justify-center relative
+            ${isPast || isClosed ? 'text-gray-200 cursor-not-allowed' : 
               isSelected ? 'bg-green-600 text-white shadow-lg scale-110' : 
-              isToday ? 'text-green-600 border border-green-200' : 'text-gray-700 hover:bg-green-50'}`}
+              isToday ? 'text-green-600 border border-green-200' : 'text-gray-700 hover:bg-green-50'}
+            ${isClosed && !isPast ? 'after:content-[""] after:absolute after:bottom-1 after:w-1 after:h-1 after:bg-red-300 after:rounded-full' : ''}`}
         >
           {d}
         </button>
