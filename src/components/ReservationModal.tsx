@@ -41,6 +41,13 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // 모달이 열릴 때 오늘 날짜로 초기화
+  useEffect(() => {
+    if (isOpen && !date) {
+      setDate(new Date().toISOString().split('T')[0]);
+    }
+  }, [isOpen, date]);
+
   // 모달이 닫힐 때 상태 초기화
   useEffect(() => {
     if (!isOpen) {
@@ -150,30 +157,35 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
 
               {step === 3 && (
                 <div className="animate-slide-in">
-                  <h3 className="text-xl font-bold text-gray-800 mb-6">방문 희망 날짜와 시간을 알려주세요.</h3>
-                  <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">방문 희망 날짜와 시간을 알려주세요.</h3>
+                  <div className="space-y-6">
                     <div>
                       <label className="block text-xs font-bold text-gray-400 mb-2 uppercase">날짜 선택</label>
                       <input 
                         type="date" 
                         min={new Date().toISOString().split('T')[0]}
-                        className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none"
+                        className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none block appearance-none"
+                        style={{ colorScheme: 'light' }}
                         value={date}
+                        onFocus={(e) => e.target.showPicker && e.target.showPicker()}
+                        onClick={(e) => (e.target as any).showPicker && (e.target as any).showPicker()}
                         onChange={(e) => setDate(e.target.value)}
                       />
+                      <p className="text-[10px] text-gray-400 mt-1 italic">* 날짜 입력 칸을 클릭하면 달력이 나타납니다.</p>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-400 mb-2 uppercase">시간 선택</label>
-                      <select 
-                        className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                      >
-                        <option value="">시간을 선택하세요</option>
-                        {['10:30', '11:00', '11:30', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'].map(t => (
-                          <option key={t} value={t}>{t}</option>
+                      <div className="grid grid-cols-3 gap-2">
+                        {['10:30', '11:00', '11:30', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(t => (
+                          <button
+                            key={t}
+                            onClick={() => setTime(t)}
+                            className={`py-3 rounded-xl text-sm font-bold transition-all ${time === t ? 'bg-green-600 text-white shadow-md' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                          >
+                            {t}
+                          </button>
                         ))}
-                      </select>
+                      </div>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-8">
