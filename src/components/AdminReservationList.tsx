@@ -37,25 +37,6 @@ export default function AdminReservationList() {
     fetchReservations();
   }, [fetchReservations]);
 
-  const updateStatus = async (id: string, newStatus: string) => {
-    try {
-      const response = await fetch('/api/reservations', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status: newStatus }),
-      });
-
-      if (response.ok) {
-        fetchReservations();
-      } else {
-        alert('상태 업데이트에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('Failed to update status:', error);
-      alert('오류가 발생했습니다.');
-    }
-  };
-
   if (loading) return <div className="p-8 text-center text-gray-500">데이터를 불러오는 중...</div>;
 
   return (
@@ -70,13 +51,12 @@ export default function AdminReservationList() {
               <th className="px-6 py-4">이벤트 항목</th>
               <th className="px-6 py-4">방문 희망일시</th>
               <th className="px-6 py-4">상태</th>
-              <th className="px-6 py-4">관리</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {reservations.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
                   접수된 예약 내역이 없습니다.
                 </td>
               </tr>
@@ -98,31 +78,13 @@ export default function AdminReservationList() {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      res.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                       res.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                      res.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-red-100 text-red-700'
                     }`}>
-                      {res.status === 'pending' ? '대기' : 
-                       res.status === 'confirmed' ? '확정' : '취소'}
+                      {res.status === 'confirmed' ? '확정' : 
+                       res.status === 'pending' ? '대기' : '취소'}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 space-x-2">
-                    {res.status === 'pending' && (
-                      <button 
-                        onClick={() => updateStatus(res.id, 'confirmed')}
-                        className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-                      >
-                        확정
-                      </button>
-                    )}
-                    {res.status !== 'cancelled' && (
-                      <button 
-                        onClick={() => updateStatus(res.id, 'cancelled')}
-                        className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200"
-                      >
-                        취소
-                      </button>
-                    )}
                   </td>
                 </tr>
               ))

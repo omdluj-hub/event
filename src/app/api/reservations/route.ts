@@ -66,7 +66,7 @@ export async function POST(request: Request) {
           reservation_time: time,
           customer_name: name,
           customer_phone: phone,
-          status: 'pending' // default status
+          status: 'confirmed' // 자동으로 확정 상태로 저장
         }
       ]);
 
