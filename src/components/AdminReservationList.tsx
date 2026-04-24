@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
 
 interface Reservation {
   id: string;
@@ -21,32 +20,39 @@ export default function AdminReservationList() {
 
   const fetchReservations = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('reservations')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (!error && data) {
-      setReservations(data);
+    try {
+      const response = await fetch('/api/reservations');
+      if (response.ok) {
+        const data = await response.json();
+        setReservations(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch reservations:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      void fetchReservations();
-    }, 0);
-    return () => clearTimeout(timer);
+    fetchReservations();
   }, [fetchReservations]);
 
   const updateStatus = async (id: string, newStatus: string) => {
-    const { error } = await supabase
-      .from('reservations')
-      .update({ status: newStatus })
-      .eq('id', id);
+    try {
+      const response = await fetch('/api/reservations', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
 
-    if (!error) {
-      fetchReservations();
+      if (response.ok) {
+        fetchReservations();
+      } else {
+        alert('상태 업데이트에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      alert('오류가 발생했습니다.');
     }
   };
 

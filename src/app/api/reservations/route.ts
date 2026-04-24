@@ -1,6 +1,50 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+export async function GET() {
+  try {
+    const { data, error } = await supabase
+      .from('reservations')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase Fetch Error:', error);
+      return NextResponse.json({ error: '데이터를 가져오는데 실패했습니다.' }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Reservation GET API Error:', error);
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const { id, status } = await request.json();
+
+    if (!id || !status) {
+      return NextResponse.json({ error: 'ID와 상태 정보가 필요합니다.' }, { status: 400 });
+    }
+
+    const { error } = await supabase
+      .from('reservations')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Supabase Update Error:', error);
+      return NextResponse.json({ error: '상태 업데이트에 실패했습니다.' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Reservation PATCH API Error:', error);
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
