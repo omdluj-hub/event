@@ -23,6 +23,11 @@ const EVENT_DATA = {
   ]
 };
 
+const CATEGORY_ICONS: Record<string, string> = {
+  '피부 이벤트': '✨',
+  '다이어트 이벤트': '🌿',
+};
+
 type MainCategory = keyof typeof EVENT_DATA;
 
 interface ReservationModalProps {
@@ -165,7 +170,8 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
                   <h3 className="text-xl font-bold text-gray-800 mb-6">이벤트 분야를 선택해주세요.</h3>
                   <div className="grid grid-cols-1 gap-4">
                     {(Object.keys(EVENT_DATA) as MainCategory[]).map((cat) => (
-                      <button key={cat} onClick={() => { setMainCategory(cat); setStep(2); }} className={`p-6 rounded-2xl border-2 text-left transition-all ${mainCategory === cat ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200'}`}>
+                      <button key={cat} onClick={() => { setMainCategory(cat); setStep(2); }} className={`p-6 rounded-2xl border-2 text-left transition-all flex items-center gap-4 ${mainCategory === cat ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200'}`}>
+                        <span className="text-2xl">{CATEGORY_ICONS[cat]}</span>
                         <span className="text-lg font-bold text-gray-800">{cat}</span>
                       </button>
                     ))}
@@ -178,8 +184,9 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
                   <h3 className="text-xl font-bold text-gray-800 mb-6">상세 항목을 선택해주세요.</h3>
                   <div className="grid grid-cols-1 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                     {mainCategory && EVENT_DATA[mainCategory].map((item) => (
-                      <button key={item} onClick={() => { setSubCategory(item); setStep(3); }} className={`p-4 rounded-xl border-2 text-left text-sm transition-all ${subCategory === item ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200'}`}>
-                        {item}
+                      <button key={item} onClick={() => { setSubCategory(item); setStep(3); }} className={`p-4 rounded-xl border-2 text-left text-sm transition-all flex items-center gap-3 ${subCategory === item ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200'}`}>
+                        <span className="shrink-0">{CATEGORY_ICONS[mainCategory]}</span>
+                        <span>{item}</span>
                       </button>
                     ))}
                   </div>
