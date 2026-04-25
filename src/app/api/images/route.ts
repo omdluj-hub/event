@@ -3,22 +3,21 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    const { error } = await supabase.storage.from('event-images').list('', {
-      limit: 100,
-      offset: 0,
-      sortBy: { column: 'name', order: 'asc' },
-    });
+    // List root and cardnews folder in parallel
+    const [rootResult, cnResult] = await Promise.all([
+      supabase.storage.from('event-images').list('', { sortBy: { column: 'name', order: 'asc' } }),
+      supabase.storage.from('event-images').list('cardnews', { sortBy: { column: 'name', order: 'asc' } })
+    ]);
 
-    if (error) throw error;
+    if (rootResult.error) throw rootResult.error;
+    if (cnResult.error) throw cnResult.error;
 
-    // Actually, let's keep it simple: event at root, cardnews in a folder
-    // But list() doesn't recurse by default. Let's list the root and the cardnews folder.
-    
-    const { data: rootFiles } = await supabase.storage.from('event-images').list('', { sortBy: { column: 'name', order: 'asc' } });
-    const { data: cnFiles } = await supabase.storage.from('event-images').list('cardnews', { sortBy: { column: 'name', order: 'asc' } });
+    const rootFiles = rootResult.data;
+    const cnFiles = cnResult.data;
 
-    const eventImage = rootFiles?.find(f => f.name.startsWith('event')) 
-      ? supabase.storage.from('event-images').getPublicUrl(rootFiles.find(f => f.name.startsWith('event'))!.name).data.publicUrl 
+    const eventFile = rootFiles?.find(f => f.name.startsWith('event'));
+    const eventImage = eventFile 
+      ? supabase.storage.from('event-images').getPublicUrl(eventFile.name).data.publicUrl 
       : null;
 
     const cardnewsImages = cnFiles
