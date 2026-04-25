@@ -44,7 +44,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
       {/* Header / Clinic Info */}
-      <header className="bg-white border-b sticky top-0 z-50">
+      <header className="bg-white border-b md:sticky md:top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold text-green-700 tracking-tight">후한의원 구미점</h1>
