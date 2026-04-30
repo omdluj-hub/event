@@ -65,7 +65,7 @@ export default function HomeContent({ initialImages }: { initialImages: ImageRes
             onClick={() => setIsModalOpen(true)}
             className="group relative inline-flex items-center justify-center px-16 py-10 font-black text-white transition-all duration-200 bg-green-600 rounded-[2.5rem] shadow-[0_20px_50px_rgba(22,163,74,0.4)] hover:bg-green-700 active:scale-95 border-b-[6px] border-green-800"
           >
-            <span className="text-3xl md:text-5xl tracking-tighter">✨ 4월 이벤트 실시간 예약</span>
+            <span className="text-3xl md:text-5xl tracking-tighter">✨ 이달의 이벤트 예약하기</span>
           </button>
         </section>
 

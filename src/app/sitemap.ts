@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://event-huhan-gumi.vercel.app'; // 실제 배포 주소로 변경 필요
+  const baseUrl = 'https://event-snowy-ten.vercel.app'; // 실제 배포 주소
 
   return [
     {

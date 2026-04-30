@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://event-huhan-gumi.vercel.app/sitemap.xml
+Sitemap: https://event-snowy-ten.vercel.app/sitemap.xml

@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "후한의원 구미점 - 이벤트 랜딩페이지",
     description: "구미 여드름, 다이어트, 피부 질환 치료 소식",
-    url: "https://event-huhan-gumi.vercel.app", // 추후 실제 도메인으로 변경 권장
+    url: "https://event-snowy-ten.vercel.app", // 추후 실제 도메인으로 변경 권장
     siteName: "후한의원 구미점",
     locale: "ko_KR",
     type: "website",
@@ -43,7 +43,7 @@ export default function RootLayout({
     "name": "후한의원 구미점",
     "image": "https://yfeijhtrrvffahaaaxzr.supabase.co/storage/v1/object/public/event-images/event_3_2.jpg",
     "@id": "",
-    "url": "https://event-huhan-gumi.vercel.app",
+    "url": "https://event-snowy-ten.vercel.app",
     "telephone": "054-474-1075",
     "address": {
       "@type": "PostalAddress",
