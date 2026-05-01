@@ -73,7 +73,10 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
     // 2026년 주요 공휴일 리스트 (대체공휴일 포함)
     const holidays = [
       '2026-01-01', '2026-02-16', '2026-02-17', '2026-02-18', '2026-02-19',
-      '2026-03-01', '2026-03-02', '2026-05-05', '2026-05-24', '2026-05-25',
+      '2026-03-01', '2026-03-02', 
+      '2026-05-14', '2026-05-15', '2026-05-16', '2026-05-17', '2026-05-18', 
+      '2026-05-19', '2026-05-20', '2026-05-21', '2026-05-22', '2026-05-23',
+      '2026-05-24',
       '2026-06-06', '2026-08-15', '2026-08-17', '2026-09-24', '2026-09-25',
       '2026-09-26', '2026-09-28', '2026-10-03', '2026-10-05', '2026-10-09',
       '2026-12-25'
@@ -91,7 +94,11 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
       const dateStr = dateObj.toLocaleDateString('en-CA'); // YYYY-MM-DD 형식
       
       const isPast = dateObj < today;
-      const isClosed = dayOfWeek === 0 || dayOfWeek === 4 || holidays.includes(dateStr);
+      const isHoliday = holidays.includes(dateStr);
+      // 특정 예외 날짜 (예약 가능한 날)
+      const isExceptionAvailable = dateStr === '2026-05-05' || dateStr === '2026-05-07' || dateStr === '2026-05-25';
+      
+      const isClosed = !isExceptionAvailable && (dayOfWeek === 0 || dayOfWeek === 4 || isHoliday);
       const isSelected = selectedDate?.toDateString() === dateObj.toDateString();
       const isToday = today.toDateString() === dateObj.toDateString();
 
